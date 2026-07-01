@@ -1,15 +1,25 @@
 package com.proejct.order_service.model;
 
-import jakarta.persistence.Table;
-import jakarta.persistence.Entity;
-
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import lombok.Data;
+import lombok.Setter;
+import lombok.Getter;
 
+import java.util.List;
+
+
+@Entity
+@Table(name = "orders")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Order {
-    private int id;
-    private String name;
-    private int quantity;
-    private double price;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long id;
+    private String orderNumber;
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<OrderLineItem> orderLineItemsList;
 }
