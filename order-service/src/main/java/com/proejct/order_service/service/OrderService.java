@@ -8,6 +8,7 @@ import com.proejct.order_service.model.Order;
 import com.proejct.order_service.model.OrderLineItem;
 import com.proejct.order_service.repository.OrderRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class OrderService {
 
     private final OrderRepository orderRepository;
