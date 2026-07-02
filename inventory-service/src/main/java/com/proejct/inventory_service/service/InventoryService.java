@@ -20,7 +20,7 @@ public class InventoryService {
             .stream()
             .map(inventory -> InventoryResponse.builder()
                 .skuCode(inventory.getSkuCode())
-                .isInStock(inventory.getQuantity() > 0)
+                .inStock(inventory.getQuantity() > 0)
                 .build()).toList();
     }
 }
