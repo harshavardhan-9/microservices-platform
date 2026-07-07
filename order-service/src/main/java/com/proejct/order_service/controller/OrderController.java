@@ -1,5 +1,7 @@
 package com.proejct.order_service.controller;
 
+import java.util.concurrent.CompletableFuture;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,6 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.proejct.order_service.dto.OrderRequest;
 import com.proejct.order_service.service.OrderService;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -22,9 +27,15 @@ public class OrderController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public String placeOrder(@RequestBody OrderRequest orderRequest) {
-        orderService.placeOrder(orderRequest);
-        return "Order Placed Successfully";
+    @CircuitBreaker(name = "inventory", fallbackMethod = "fallbackPlaceOrder")
+    @TimeLimiter(name = "inventory", fallbackMethod = "fallbackPlaceOrder")
+    @Retry(name = "inventory", fallbackMethod = "fallbackPlaceOrder")
+    public CompletableFuture<String> placeOrder(@RequestBody OrderRequest orderRequest) {
+        return CompletableFuture.supplyAsync(() -> orderService.placeOrder(orderRequest));
+    }
+
+    public CompletableFuture<String> fallbackPlaceOrder(OrderRequest orderRequest, RuntimeException runtimeException) {
+        return CompletableFuture.supplyAsync(() -> "Order Service is currently unavailable. Please try again later.");
     }
     
 }
